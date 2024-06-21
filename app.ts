@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import dotenv from 'dotenv';
 
 import connectDB from "./config/database";
+import sessionMiddleware from './config/session'
 
 import authRoutes from './routes/authRoutes'
 
@@ -16,6 +17,7 @@ const MONGOURL = process.env.MONGOURL;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(sessionMiddleware)
 
 connectDB(MONGOURL)
 
