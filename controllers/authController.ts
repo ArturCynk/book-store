@@ -75,3 +75,46 @@ export const activateAccount = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Missing activation token.' });
   }
 };
+
+import { setUserId } from '../utils/sessionUtils';
+import { ObjectId } from 'mongodb';
+
+export const loginUser = async (req: Request, res: Response) => {
+  const { usernameOrEmail, password } = req.body;
+
+  try {
+    // Sprawdzenie, czy użytkownik istnieje
+    let user: UserDocument | null = await User.findOne({ $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }] });
+    if (!user) {
+      return res.status(404).json({ msg: 'Account not found' });
+    }
+
+    // Sprawdzenie, czy konto jest aktywowane
+    if (!user.isActive) {
+      return res.status(401).json({ msg: 'Account not activated' });
+    }
+
+    // Sprawdzenie poprawności hasła
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Invalid password' });
+    }
+
+
+// Ustawienie userId w sesji
+    let userId: ObjectId;
+    if (typeof user._id === 'string') {
+    userId = new ObjectId(user._id);
+    } else {
+    userId = user._id as ObjectId;
+    }
+
+    // Ustawienie userId w sesji
+    setUserId(req, userId); // Użycie bezpośrednio user._id, który jest typu ObjectId
+
+    res.json({ msg: 'Login successful' });
+  } catch (err) {
+    console.error('Error logging in:', err);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+};

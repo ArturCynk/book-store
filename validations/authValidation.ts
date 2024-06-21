@@ -18,6 +18,11 @@ export const registrationValidationRules = [
   body('address.country', 'Country is required').notEmpty(),
 ];
 
+export const loginValidationRules = [
+  body('usernameOrEmail').notEmpty().withMessage('Username or email is required'),
+  body('password').notEmpty().withMessage('Password is required'),
+];
+
 export const validate = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
