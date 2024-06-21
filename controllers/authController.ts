@@ -129,69 +129,69 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-// Funkcja do wysyłania emaila z linkiem resetowania hasła
+// Function to send password reset email
 export const sendResetPasswordEmail = async (req: Request, res: Response) => {
-    const { email } = req.body;
-  
-    try {
-      // Sprawdź, czy istnieje użytkownik o podanym emailu
-      const user: UserDocument | null = await User.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ msg: 'User not found' });
-      }
-  
-      // Wygeneruj token resetowania hasła
-      const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_RESET_SECRET as string, {
-        expiresIn: '30m', // Ważność tokena resetowania hasła (30 minut)
-      });
-  
-      // Zapisz token resetowania hasła w bazie danych
-      user.resetPasswordToken = resetToken;
-      await user.save();
-  
-      // Wygeneruj link do resetowania hasła
-      const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
-  
-      // Wyślij email z linkiem resetowania hasła
-      await sendPasswordResetEmail(email, resetLink);
-  
-      return res.json({ msg: 'Password reset email sent' });
-    } catch (error) {
-      console.error('Error sending password reset email:', error);
-      return res.status(500).json({ msg: 'Server Error' });
+  const { email } = req.body;
+
+  try {
+    // Check if user with the provided email exists
+    const user: UserDocument | null = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
     }
-  };
-  
-// Funkcja do resetowania hasła na podstawie otrzymanego tokena
+
+    // Generate password reset token
+    const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, {
+      expiresIn: '30m', // Token validity (30 minutes)
+    });
+
+    // Save reset password token to database
+    user.resetPasswordToken = resetToken;
+    await user.save();
+
+    // Generate password reset link
+    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+
+    // Send password reset email with the reset link
+    await sendPasswordResetEmail(email, resetLink);
+
+    return res.json({ msg: 'Password reset email sent' });
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return res.status(500).json({ msg: 'Server Error' });
+  }
+};
+
+// Function to reset password based on received token
 export const resetPassword = async (req: Request, res: Response) => {
-    const { token } = req.params;
-    const { newPassword } = req.body;
-  
-    if (!token) {
-      return res.status(400).json({ msg: 'Invalid token' });
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ msg: 'Invalid token' });
+  }
+
+  try {
+    // Verify if the reset password token is valid
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
+
+    // Find user based on the decoded userId
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
     }
-  
-    try {
-      // Sprawdź, czy token resetowania hasła jest poprawny
-      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET as string) as { userId: string };
-  
-      // Znajdź użytkownika na podstawie ID
-      const user = await User.findById(decoded.userId);
-      if (!user) {
-        return res.status(404).json({ msg: 'User not found' });
-      }
-  
-      // Zaktualizuj hasło użytkownika
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(newPassword, salt);
-  
-      user.password = hashedPassword;
-      user.resetPasswordToken = undefined; // Usuń token resetowania hasła
-      await user.save();
-  
-      return res.json({ msg: 'Password reset successful' });
-    } catch (error) {
-      console.error('Error resetting password:', error);
-      return res.status(400).json({ msg: 'Invalid or expired token' });
-    }
-  };
+
+    // Update user's password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined; // Clear reset password token
+    await user.save();
+
+    return res.json({ msg: 'Password reset successful' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return res.status(400).json({ msg: 'Invalid or expired token' });
+  }
+};
