@@ -18,14 +18,15 @@ export interface UserDocument extends Document {
   email: string;
   password: string;
   address: Address;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive: boolean; // Nowe pole isActive
   activationToken?: string;
   resetPasswordToken?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Schema użytkownika
-const UserSchema: Schema = new Schema(
+const UserSchema: Schema<UserDocument> = new Schema(
   {
     firstName: {
       type: String,
@@ -42,11 +43,13 @@ const UserSchema: Schema = new Schema(
       required: [true, 'Username is required'],
       trim: true,
       minlength: [3, 'Username must be at least 3 characters long'],
+      unique: true,
     },
     email: {
       type: String,
       required: [true, 'Email is required'],
       unique: true,
+      trim: true,
       match: [
         /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
         'Please fill a valid email address',
@@ -63,6 +66,10 @@ const UserSchema: Schema = new Schema(
       apartmentNumber: { type: String },
       postalCode: { type: String, required: [true, 'Postal code is required'] },
       country: { type: String, required: [true, 'Country is required'] },
+    },
+    isActive: {
+      type: Boolean,
+      default: false, // Domyślnie isActive będzie ustawione na false
     },
     activationToken: String,
     resetPasswordToken: String,
