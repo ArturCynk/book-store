@@ -1,0 +1,32 @@
+{
+  "name": "book-store",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.7",
+    "@types/nodemon": "^1.19.6",
+    "dotenv": "^16.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "body-parse": "^0.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-validation": "^4.1.1",
+    "mongoose": "^8.4.3",
+    "nodemon": "^3.1.4"
+  }
+}
