@@ -43,3 +43,68 @@ export const getAllBooks = async (req: Request, res: Response) => {
       return res.status(500).json({ msg: 'Server Error' });
     }
 };
+
+export const getBookById = async (req: Request, res: Response) => {
+    const { id } = req.params; // Pobierz id książki z parametrów żądania
+  
+    try {
+      const book: BookDocument | null = await Book.findById(id);
+  
+      if (!book) {
+        return res.status(404).json({ msg: 'Book not found' });
+      }
+  
+      return res.status(200).json(book);
+    } catch (err) {
+      console.error('Error fetching book:', err);
+      return res.status(500).json({ msg: 'Server Error' });
+    }
+};
+
+export const updateBookById = async (req: Request, res: Response) => {
+    const { id } = req.params; // Pobierz id książki z parametrów żądania
+    const { title, author, isbn, quantity, description, price, publisherDate } = req.body;
+  
+    try {
+      let book: BookDocument | null = await Book.findById(id);
+  
+      if (!book) {
+        return res.status(404).json({ msg: 'Book not found' });
+      }
+  
+      // Aktualizacja pól książki
+      book.title = title;
+      book.author = author;
+      book.isbn = isbn;
+      book.quantity = quantity;
+      book.description = description;
+      book.price = price;
+      book.publisherDate = publisherDate;
+  
+      await book.save();
+  
+      return res.status(200).json({ msg: 'Book updated successfully', book });
+    } catch (err) {
+      console.error('Error updating book:', err);
+      return res.status(500).json({ msg: 'Server Error' });
+    }
+};
+
+export const deleteBookById = async (req: Request, res: Response) => {
+    const { id } = req.params; // Pobierz id książki z parametrów żądania
+  
+    try {
+      let book: BookDocument | null = await Book.findById(id);
+  
+      if (!book) {
+        return res.status(404).json({ msg: 'Book not found' });
+      }
+  
+      await Book.findByIdAndDelete(id);
+  
+      return res.status(200).json({ msg: 'Book deleted successfully' });
+    } catch (err) {
+      console.error('Error deleting book:', err);
+      return res.status(500).json({ msg: 'Server Error' });
+    }
+};
