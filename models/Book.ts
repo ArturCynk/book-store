@@ -9,6 +9,7 @@ export interface BookDocument extends Document {
   description: string;
   price: number;
   publisherDate: Date;
+  coverImage: string; // URL do obrazu okładki książki
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +51,11 @@ const BookSchema: Schema<BookDocument> = new Schema(
     publisherDate: {
       type: Date,
       required: [true, 'Publisher date is required'],
+    },
+    coverImage: {
+      type: String,
+      required: [true, 'Cover image is required'],
+      trim: true,
     },
   },
   {

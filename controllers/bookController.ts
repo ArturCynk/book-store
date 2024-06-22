@@ -3,7 +3,7 @@ import Book, { BookDocument } from '../models/Book';
 
 // Kontroler dla dodawania nowych książek
 export const addBook = async (req: Request, res: Response) => {
-  const { title, author, isbn, quantity, description, price, publisherDate, } = req.body;
+  const { title, author, isbn, quantity, description, price, publisherDate } = req.body;
 
   try {
     let existingBook = await Book.findOne({ isbn });
@@ -12,6 +12,8 @@ export const addBook = async (req: Request, res: Response) => {
     }
 
     // Tworzenie nowej instancji książki
+    const coverImage = req.file ? req.file.path : ''; // Ścieżka do przesłanego zdjęcia
+
     const newBook: BookDocument = new Book({
       title,
       author,
@@ -19,7 +21,8 @@ export const addBook = async (req: Request, res: Response) => {
       quantity,
       description,
       price,
-      publisherDate: new Date(publisherDate)
+      publisherDate: new Date(publisherDate),
+      coverImage, // Dodanie pola coverImage
     });
 
     await newBook.save();
@@ -30,3 +33,4 @@ export const addBook = async (req: Request, res: Response) => {
     return res.status(500).json({ msg: 'Server Error' });
   }
 };
+
