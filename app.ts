@@ -7,8 +7,9 @@ import connectDB from "./config/database";
 import sessionMiddleware from './config/session'
 
 import authRoutes from './routes/authRoutes'
+import bookRouter from './routes/bookRoutes'
 
-const app : Application = express();
+const app: Application = express();
 
 dotenv.config();
 
@@ -17,14 +18,14 @@ const MONGOURL = process.env.MONGOURL;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(sessionMiddleware)
+app.use(sessionMiddleware);
 
-connectDB(MONGOURL)
+connectDB(MONGOURL);
 
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', authRoutes);
+app.use('/api', bookRouter)
+
 
 app.listen(PORT, () => {
-    console.log(`listening on ${PORT}`);
-    
-})
-
+    console.log(`Server is running on port ${PORT}`);
+});

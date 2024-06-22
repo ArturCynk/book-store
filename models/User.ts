@@ -18,11 +18,12 @@ export interface UserDocument extends Document {
   email: string;
   password: string;
   address: Address;
-  isActive: boolean; // Nowe pole isActive
+  isActive: boolean;
   activationToken?: string;
   resetPasswordToken?: string;
   createdAt: Date;
   updatedAt: Date;
+  role: 'user' | 'admin'; // Dodajemy pole role
 }
 
 // Schema użytkownika
@@ -73,6 +74,11 @@ const UserSchema: Schema<UserDocument> = new Schema(
     },
     activationToken: String,
     resetPasswordToken: String,
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user', // Domyślnie nowy użytkownik będzie miał rolę 'user'
+    },
   },
   {
     timestamps: true,
