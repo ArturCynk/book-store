@@ -34,3 +34,12 @@ export const addBook = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllBooks = async (req: Request, res: Response) => {
+    try {
+      const books: BookDocument[] = await Book.find();
+      return res.status(200).json(books);
+    } catch (err) {
+      console.error('Error fetching books:', err);
+      return res.status(500).json({ msg: 'Server Error' });
+    }
+};

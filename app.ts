@@ -23,7 +23,7 @@ app.use(sessionMiddleware);
 connectDB(MONGOURL);
 
 app.use('/api/auth', authRoutes);
-app.use('/api', bookRouter)
+app.use('/api/books', bookRouter)
 
 
 app.listen(PORT, () => {
