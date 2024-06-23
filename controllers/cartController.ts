@@ -21,6 +21,7 @@ export const addToCart = async (req: Request, res: Response) => {
       cart.items[cartItemIndex].quantity += parseInt(quantity, 10);
     } else {
       const book = await Book.findById(bookId);
+      //Zaraz Bedzie Ciepło Ksiżniczko moja i tylko moja
 
       if (!book) {
         return res.status(404).json({ msg: 'Book not found' });
