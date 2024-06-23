@@ -8,6 +8,7 @@ import sessionMiddleware from './config/session'
 
 import authRoutes from './routes/authRoutes'
 import bookRouter from './routes/bookRoutes'
+import cartRouter from './routes/cartRoutes'
 
 const app: Application = express();
 
@@ -23,7 +24,8 @@ app.use(sessionMiddleware);
 connectDB(MONGOURL);
 
 app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRouter)
+app.use('/api/books', bookRouter);
+app.use('/api/cart', cartRouter)
 
 
 app.listen(PORT, () => {

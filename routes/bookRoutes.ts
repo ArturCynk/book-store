@@ -3,6 +3,7 @@ import { addBook, getAllBooks, getBookById, updateBookById, deleteBookById } fro
 import { validateBook } from '../validations/bookValidators';
 import { checkAdmin } from '../middlewares/authMiddleware';
 import upload from '../middlewares/upload';
+
 const router = express.Router();
 
 // Endpoint do dodawania nowych książek
