@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, activateAccount, loginUser, sendResetPasswordEmail, resetPassword } from '../controllers/authController';
+import { registerUser, activateAccount, loginUser, sendResetPasswordEmail, resetPassword, logoutUser } from '../controllers/authController';
 import { registrationValidationRules, loginValidationRules, validate } from '../validations/authValidation';
 
 const router = express.Router();
@@ -13,10 +13,13 @@ router.get('/activate/:token', activateAccount);
 // Route for user login
 router.post('/login', loginValidationRules, validate, loginUser);
 
-// Endpoint do wysyłania emaila z linkiem resetowania hasła
+// Endpoint to send reset password email
 router.post('/reset-password', sendResetPasswordEmail);
 
-// Endpoint do resetowania hasła na podstawie otrzymanego tokena
+// Endpoint to reset password based on received token
 router.post('/reset-password/:token', resetPassword);
+
+// Route for user logout
+router.post('/logout', logoutUser);
 
 export default router;

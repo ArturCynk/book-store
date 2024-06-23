@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User, { UserDocument } from '../models/User';
 import { sendActivationEmail, sendPasswordResetEmail } from '../email/sendEmail';
-import { setUserId } from '../utils/sessionUtils';
+import { setUserId, clearUserId } from '../utils/sessionUtils';
 import { ObjectId } from 'mongodb';
 
 // Controller function for user registration
@@ -203,4 +203,16 @@ export const resetPassword = async (req: Request, res: Response) => {
         console.error('Error resetting password:', error);
         return res.status(400).json({ msg: 'Invalid or expired token' });
     }
+};
+
+export const logoutUser = (req: Request, res: Response) => {
+    clearUserId(req);
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return res.status(500).json({ msg: 'Server Error' });
+      }
+      res.clearCookie('connect.sid'); // Adjust the cookie name if necessary
+      return res.json({ msg: 'Logout successful' });
+    });
 };
