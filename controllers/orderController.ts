@@ -3,40 +3,59 @@ import Order, { OrderDocument } from '../models/Order';
 import Cart, { CartDocument } from '../models/Cart';
 import Book, { BookDocument } from '../models/Book';
 import { getUserId } from '../utils/sessionUtils';
+import { sendOrderConfirmationEmail } from '../email/sendEmail';
+import User from '../models/User';
 
 // Kontroler do składania zamówienia
+// Controller to place order
 export const placeOrder = async (req: Request, res: Response) => {
-    const userId = getUserId(req); // Pobierz ID użytkownika z sesji
+    const userId = getUserId(req); // Get user ID from session
+
     try {
-        // Znajdź koszyk użytkownika
-        const cart: CartDocument | null = await Cart.findOne({ user: userId });
+        // Find user's email
+        const user = await User.findById(userId);
+        if (!user || !user.email) {
+            return res.status(404).json({ msg: 'User not found or email not available' });
+        }
+
+        const userEmail = user.email;
+
+        // Find user's cart
+        const cart: CartDocument | null = await Cart.findOne({ user: userId }).populate('items.book');
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ msg: 'Cart is empty' });
         }
 
-        // Stwórz zamówienie na podstawie zawartości koszyka
+        // Create order from cart items
         const orderItems = cart.items.map(item => ({
             book: item.book,
+            title: (item.book as BookDocument).title,
+            author: (item.book as BookDocument).author,
             quantity: item.quantity,
             price: item.price
         }));
+        console.log(orderItems);
+        
 
-        // Oblicz całkowitą cenę zamówienia
+        // Calculate total price
         const totalPrice = orderItems.reduce((acc, curr) => acc + curr.quantity * curr.price, 0);
 
-        // Stwórz nowe zamówienie
+        // Create new order
         const newOrder = new Order({
             user: userId,
             items: orderItems,
             totalPrice
         });
 
-        // Zapisz zamówienie
+        // Save order
         await newOrder.save();
 
-        // Wyczyść koszyk użytkownika
+        // Clear user's cart
         cart.items = [];
         await cart.save();
+
+        // Send order confirmation email
+        await sendOrderConfirmationEmail(userEmail, newOrder);
 
         return res.status(201).json({ msg: 'Order placed successfully', order: newOrder });
     } catch (err) {
@@ -60,7 +79,7 @@ export const getUserOrders = async (req: Request, res: Response) => {
 
 
 export const getOrderById = async (req: Request, res: Response) => {
-    const { orderId } = req.params; // Get orderId from request params
+    const { orderId } = req.params;
 
     try {
         const order = await Order.findById(orderId);
