@@ -34,8 +34,6 @@ export const placeOrder = async (req: Request, res: Response) => {
             quantity: item.quantity,
             price: item.price
         }));
-        console.log(orderItems);
-        
 
         // Calculate total price
         const totalPrice = orderItems.reduce((acc, curr) => acc + curr.quantity * curr.price, 0);

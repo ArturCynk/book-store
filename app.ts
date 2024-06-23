@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes'
 import bookRouter from './routes/bookRoutes'
 import cartRouter from './routes/cartRoutes'
 import orderRoutes from './routes/orderRoutes'
+import userRoutes from './routes/userRoutes'
 
 const app: Application = express();
 
@@ -27,7 +28,8 @@ connectDB(MONGOURL);
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRouter);
 app.use('/api/cart', cartRouter);
-app.use('/api/order', orderRoutes)
+app.use('/api/order', orderRoutes);
+app.use('/api/user', userRoutes)
 
 
 app.listen(PORT, () => {
