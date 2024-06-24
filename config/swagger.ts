@@ -6,7 +6,7 @@ const options = {
         info: {
             title: 'Comprehensive Online Bookstore and Library Platform API',
             version: '1.0.0',
-            description: 'API documentation for user authentication and book management',
+            description: 'API documentation for user authentication, book management, and shopping cart',
         },
         servers: [
             {
@@ -75,10 +75,34 @@ const options = {
                     },
                     required: ['title', 'author', 'description', 'genre', 'quantity', 'price', 'publisherDate', 'isbn', 'coverImage'],
                 },
+                CartItem: {
+                    type: 'object',
+                    properties: {
+                        book: { type: 'string' }, // Assuming _id is represented as a string
+                        quantity: { type: 'number' },
+                        price: { type: 'number' },
+                    },
+                    required: ['book', 'quantity', 'price'],
+                },
+                Cart: {
+                    type: 'object',
+                    properties: {
+                        user: { type: 'string' }, // Assuming user is represented as a string
+                        items: {
+                            type: 'array',
+                            items: {
+                                $ref: '#/components/schemas/CartItem',
+                            },
+                        },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                    required: ['user', 'items', 'createdAt', 'updatedAt'],
+                },
             },
         },
     },
-    apis: ['./routes/authRoutes.ts', './routes/bookRoutes.ts'], // Paths to your route files
+    apis: ['./routes/*.ts'], // Paths to your route files
 };
 
 export const specs = swaggerJsDoc(options);
