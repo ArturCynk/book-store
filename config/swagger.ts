@@ -6,7 +6,7 @@ const options = {
         info: {
             title: 'Comprehensive Online Bookstore and Library Platform API',
             version: '1.0.0',
-            description: 'API documentation for user authentication and management',
+            description: 'API documentation for user authentication and book management',
         },
         servers: [
             {
@@ -38,10 +38,47 @@ const options = {
                     },
                     required: ['firstName', 'lastName', 'username', 'email', 'password', 'address'],
                 },
+                Book: {
+                    type: 'object',
+                    properties: {
+                        title: { type: 'string' },
+                        author: { type: 'string' },
+                        description: { type: 'string' },
+                        genre: {
+                            type: 'string',
+                            enum: [
+                                'Fiction',
+                                'Non-Fiction',
+                                'Fantasy',
+                                'Science Fiction',
+                                'Mystery',
+                                'Thriller',
+                                'Romance',
+                                'Historical Fiction',
+                                'Biography',
+                                'Autobiography',
+                                'Self-Help',
+                                'Philosophy',
+                                'Travel',
+                                'Cookbooks',
+                                'Poetry',
+                                'Drama',
+                                'Children',
+                                'Young Adult',
+                            ],
+                        },
+                        quantity: { type: 'number' },
+                        price: { type: 'number' },
+                        publisherDate: { type: 'string', format: 'date' },
+                        isbn: { type: 'string' },
+                        coverImage: { type: 'string' },
+                    },
+                    required: ['title', 'author', 'description', 'genre', 'quantity', 'price', 'publisherDate', 'isbn', 'coverImage'],
+                },
             },
         },
     },
-    apis: ['./routes/authRoutes.ts'], // Ścieżka do pliku z trasami, tutaj authRoutes.ts
+    apis: ['./routes/authRoutes.ts', './routes/bookRoutes.ts'], // Paths to your route files
 };
 
 export const specs = swaggerJsDoc(options);
