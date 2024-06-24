@@ -2,6 +2,8 @@ import express, { Application } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
+import { specs } from './config/swagger'
 
 import connectDB from "./config/database";
 import sessionMiddleware from './config/session'
@@ -24,6 +26,8 @@ app.use(bodyParser.json());
 app.use(sessionMiddleware);
 
 connectDB(MONGOURL);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRouter);
