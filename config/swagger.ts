@@ -123,6 +123,17 @@ const options = {
                         updatedAt: { type: 'string', format: 'date-time' },
                     },
                     required: ['user', 'items', 'totalPrice', 'createdAt', 'updatedAt'],
+                },Review: {
+                    type: 'object',
+                    properties: {
+                        book: { type: 'string' }, // Assuming _id is represented as a string
+                        user: { type: 'string' }, // Assuming _id is represented as a string
+                        rating: { type: 'number', minimum: 1, maximum: 5 },
+                        reviewText: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                    required: ['book', 'user', 'rating', 'reviewText', 'createdAt', 'updatedAt'],
                 },
             },
         },
