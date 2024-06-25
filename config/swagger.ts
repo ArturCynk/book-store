@@ -6,7 +6,7 @@ const options = {
         info: {
             title: 'Comprehensive Online Bookstore and Library Platform API',
             version: '1.0.0',
-            description: 'API documentation for user authentication, book management, shopping cart, and orders',
+            description: 'API documentation for user authentication, book management, shopping cart, orders, and favorites',
         },
         servers: [
             {
@@ -123,7 +123,8 @@ const options = {
                         updatedAt: { type: 'string', format: 'date-time' },
                     },
                     required: ['user', 'items', 'totalPrice', 'createdAt', 'updatedAt'],
-                },Review: {
+                },
+                Review: {
                     type: 'object',
                     properties: {
                         book: { type: 'string' }, // Assuming _id is represented as a string
@@ -134,6 +135,16 @@ const options = {
                         updatedAt: { type: 'string', format: 'date-time' },
                     },
                     required: ['book', 'user', 'rating', 'reviewText', 'createdAt', 'updatedAt'],
+                },
+                Favorite: {
+                    type: 'object',
+                    properties: {
+                        user: { type: 'string' }, // Assuming _id is represented as a string
+                        book: { type: 'string' }, // Assuming _id is represented as a string
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                    required: ['user', 'book', 'createdAt', 'updatedAt'],
                 },
             },
         },
