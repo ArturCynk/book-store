@@ -35,16 +35,62 @@ export const addBook = async (req: Request, res: Response) => {
     }
 };
 
-// Kontroler do pobierania wszystkich książek
+// Pobieranie wszystkich książek z opcjami sortowania i filtrowania
 export const getAllBooks = async (req: Request, res: Response) => {
     try {
-        const books: BookDocument[] = await Book.find();
+        const { sort, order, genre, minPrice, maxPrice, available } = req.query as {
+            sort?: string;
+            order?: 'asc' | 'desc';
+            genre?: string;
+            minPrice?: string;
+            maxPrice?: string;
+            available?: string;
+        };
+
+        let filter: any = {};
+
+        if (genre) {
+            filter.genre = genre;
+        }
+
+        if (minPrice) {
+            filter.price = { $gte: Number(minPrice) };
+        }
+
+        if (maxPrice) {
+            filter.price = { ...filter.price, $lte: Number(maxPrice) };
+        }
+
+        if (available) {
+            filter.quantity = { $gt: 0 };
+        }
+
+        let sortOptions: any = {};
+        if (sort) {
+            sortOptions[sort] = order === 'desc' ? -1 : 1;
+        }
+
+        const books: BookDocument[] = await Book.find(filter).sort(sortOptions);
         return res.status(200).json(books);
     } catch (err) {
         console.error('Error fetching books:', err);
         return res.status(500).json({ msg: 'Server Error' });
     }
 };
+
+// Wyszukiwanie książek po nazwie
+export const searchBooksByName = async (req: Request, res: Response) => {
+    const { title } = req.query as { title: string };
+
+    try {
+        const books: BookDocument[] = await Book.find({ title: new RegExp(title, 'i') }); 
+        return res.status(200).json(books);
+    } catch (err) {
+        console.error('Error searching books:', err);
+        return res.status(500).json({ msg: 'Server Error' });
+    }
+};
+
 
 // Kontroler do pobierania książki po ID
 export const getBookById = async (req: Request, res: Response) => {

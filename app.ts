@@ -13,6 +13,8 @@ import bookRouter from './routes/bookRoutes'
 import cartRouter from './routes/cartRoutes'
 import orderRoutes from './routes/orderRoutes'
 import userRoutes from './routes/userRoutes'
+import favoriteRoutes from './routes/favoriteRoutes'
+import reviewRoutes from './routes/reviewRoutes'
 
 const app: Application = express();
 
@@ -33,7 +35,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRoutes);
-app.use('/api/user', userRoutes)
+app.use('/api/user', userRoutes);
+app.use('/api/favorive/', favoriteRoutes);
+app.use('/api/review/', reviewRoutes);
 
 
 app.listen(PORT, () => {
