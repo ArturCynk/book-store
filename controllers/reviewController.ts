@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import Review, { ReviewDocument } from '../models/Review';
 import { getUserId } from '../utils/sessionUtils';
+import Book from '../models/Book';
+import User from '../models/User';
+import { sendNewReviewNotification } from '../email/sendEmail'
 
 // Dodawanie recenzji
 export const addReview = async (req: Request, res: Response) => {
@@ -16,6 +19,14 @@ export const addReview = async (req: Request, res: Response) => {
         });
 
         await newReview.save();
+
+        const bookDetails = await Book.findById(book);
+        const usersToNotify = await User.find({ favoriteBooks: book });
+
+        // Wysyłanie powiadomień
+        usersToNotify.forEach(user => {
+            sendNewReviewNotification(user.email, bookDetails?.title ?? '', reviewText);
+        });
 
         return res.status(201).json({ msg: 'Review added successfully', review: newReview });
     } catch (err) {
