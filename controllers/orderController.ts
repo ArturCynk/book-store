@@ -4,10 +4,8 @@ import Cart, { CartDocument } from '../models/Cart';
 import Book, { BookDocument } from '../models/Book';
 import { getUserId } from '../utils/sessionUtils';
 import { sendOrderConfirmationEmail } from '../email/sendEmail';
-import User from '../models/User';
+import User, { UserDocument } from '../models/User';
 
-// Kontroler do składania zamówienia
-// Controller to place order
 export const placeOrder = async (req: Request, res: Response) => {
     const userId = getUserId(req); // Get user ID from session
 
@@ -21,7 +19,7 @@ export const placeOrder = async (req: Request, res: Response) => {
         const userEmail = user.email;
 
         // Find user's cart
-        const cart: CartDocument | null = await Cart.findOne({ user: userId }).populate('items.book');
+        const cart = await Cart.findOne({ user: userId }).populate('items.book');
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ msg: 'Cart is empty' });
         }
@@ -29,8 +27,8 @@ export const placeOrder = async (req: Request, res: Response) => {
         // Create order from cart items
         const orderItems = cart.items.map(item => ({
             book: item.book,
-            title: (item.book as BookDocument).title,
-            author: (item.book as BookDocument).author,
+            title: (item.book as any).title,
+            author: (item.book as any).author,
             quantity: item.quantity,
             price: item.price
         }));
@@ -53,7 +51,13 @@ export const placeOrder = async (req: Request, res: Response) => {
         await cart.save();
 
         // Send order confirmation email
-        await sendOrderConfirmationEmail(userEmail, newOrder);
+        await sendOrderConfirmationEmail(userEmail, {
+            orderId: newOrder._id,
+            customerName: user.firstName + ' ' + user.lastName,
+            customerEmail: user.email,
+            total: newOrder.totalPrice,
+            items: orderItems
+        });
 
         return res.status(201).json({ msg: 'Order placed successfully', order: newOrder });
     } catch (err) {

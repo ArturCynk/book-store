@@ -3,6 +3,9 @@ import getActivationEmailTemplate from '../templates/activationEmail';
 import getPasswordResetEmailTemplate from '../templates/resetPasswordEmail'
 import getOrderConfirmationEmailTemplate from '../templates/orderConfirmationEmail'
 import getNewReviewNotificationTemplate from '../templates/newReviewNotification'
+import path from 'path';
+import { generateInvoice } from '../invoice/generateInvoice';
+import fs from 'fs';
 // Ustawienie klucza API SendGrid
 sgMail.setApiKey('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');
 
@@ -52,17 +55,52 @@ export const sendNewReviewNotification = async (email: string, bookTitle: string
 };
 
 export const sendOrderConfirmationEmail = async (email: string, orderDetails: any) => {
-  const msg = {
-      to: email,
-      from: 'generalzn1@gmail.com',
-      subject: 'Order Confirmation',
-      html: getOrderConfirmationEmailTemplate(orderDetails),
+  const invoicePath = path.resolve(__dirname, `../invoices/invoice_${orderDetails.orderId}.pdf`);
+
+  await generateInvoice(orderDetails, invoicePath);
+
+  // Ensure file is written before reading it
+  const waitForFile = (filePath: string, timeout = 5000) => {
+      return new Promise<void>((resolve, reject) => {
+          const startTime = Date.now();
+          const checkFile = () => {
+              if (fs.existsSync(filePath)) {
+                  resolve();
+              } else if (Date.now() - startTime >= timeout) {
+                  reject(new Error('File did not appear within timeout period'));
+              } else {
+                  setTimeout(checkFile, 100);
+              }
+          };
+          checkFile();
+      });
   };
+
   try {
+      await waitForFile(invoicePath);
+
+      const msg = {
+          to: email,
+          from: 'generalzn1@gmail.com',
+          subject: 'Potwierdzenie zamówienia',
+          html: getOrderConfirmationEmailTemplate(orderDetails),
+          attachments: [
+              {
+                  content: fs.readFileSync(invoicePath).toString('base64'),
+                  filename: `invoice_${orderDetails.orderId}.pdf`,
+                  type: 'application/pdf',
+                  disposition: 'attachment',
+              },
+          ],
+      };
+
       await sgMail.send(msg);
   } catch (error) {
       console.error('Failed to send order confirmation email:', error);
       throw new Error('Failed to send order confirmation email');
+  } finally {
+      if (fs.existsSync(invoicePath)) {
+          fs.unlinkSync(invoicePath); // Usuwanie pliku po wysłaniu emaila
+      }
   }
 };
-
