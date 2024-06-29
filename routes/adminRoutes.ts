@@ -1,6 +1,6 @@
 import express from 'express';
 import { checkAdmin } from '../middlewares/authMiddleware'
-import { deleteUser, getUsers, updateUser } from '../controllers/adminRoutes';
+import { deleteUser, getUser, getUsers, updateUser } from '../controllers/adminRoutes';
 
 const router = express.Router();
 
@@ -28,6 +28,37 @@ const router = express.Router();
  */
 router.get('/users', checkAdmin, getUsers )
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to fetch
+ *     responses:
+ *       '200':
+ *         description: User found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       '404':
+ *         description: User not found
+ *       '500':
+ *         description: Server error
+ */
+router.get('/users/:id', checkAdmin, getUser)
 
 /**
  * @swagger

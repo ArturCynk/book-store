@@ -10,6 +10,25 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 }
 
+export const getUser = async (req: Request, res: Response) => {
+  const {id} = req.params
+
+  try {
+      // Fetch user from the database based on their ID
+      const user = await User.findById(id);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      // If user is found, return all their data
+      return res.status(200).json({ user });
+    } catch (error) {
+      console.error('Error while fetching user data:', error);
+      return res.status(500).json({ message: 'An error occurred while fetching user data.' });
+    }
+}
+
 export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { firstName, lastName, email, username, address } = req.body;
