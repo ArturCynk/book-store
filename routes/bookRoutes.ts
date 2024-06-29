@@ -243,7 +243,7 @@ router.delete('/books/:id', checkAdmin, deleteBookById);
 
 /**
  * @swagger
- * /books/export:
+ * /book/export:
  *   get:
  *     summary: Export all books to Excel
  *     tags: [Books]
@@ -255,7 +255,7 @@ router.delete('/books/:id', checkAdmin, deleteBookById);
  *       500:
  *         description: Server error
  */
-router.get('/bookss/export', checkAdmin, exportBooksToExcel);
+router.get('/book/export', checkAdmin, exportBooksToExcel);
 
 
 export default router;
