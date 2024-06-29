@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import User, { UserDocument } from '../models/User';
+import ExcelJS from 'exceljs';
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
@@ -89,3 +90,89 @@ export const deleteUser = async (req: Request, res:Response) => {
       res.status(400).json({ message: error});
     }
 }
+
+export const searchUsers = async (req: Request, res: Response) => {
+  const { query } = req.query;
+
+  try {
+    const users = await User.find({
+      $or: [
+        { firstName: { $regex: query, $options: 'i' } }, // Wyszukaj po imieniu (ignoruj wielkość liter)
+        { lastName: { $regex: query, $options: 'i' } },  // Wyszukaj po nazwisku (ignoruj wielkość liter)
+        { username: { $regex: query, $options: 'i' } },  // Wyszukaj po nazwie użytkownika (ignoruj wielkość liter)
+        { email: { $regex: query, $options: 'i' } },     // Wyszukaj po adresie e-mail (ignoruj wielkość liter)
+      ],
+    });
+
+    res.json(users);
+  } catch (error) {
+    console.error('Error while searching users:', error);
+    res.status(500).json({ message: 'An error occurred while searching users.' });
+  }
+};
+
+
+export const sortUser =  async (req: Request, res: Response) => {
+  const { sortBy } = req.query; 
+
+  try {
+    let users: UserDocument[];
+
+    if (sortBy && ['firstName', 'lastName', 'email', 'createdAt', 'role'].includes(sortBy as string)) {
+      users = await User.find().sort({ [sortBy as string]: 1 }).exec();
+    } else {
+      users = await User.find().sort({ lastName: 1 }).exec();
+    }
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'An error occurred while sorting users.' });
+  }
+};
+
+export const exportUsersToExcel = async (req: Request, res: Response) => {
+  try {
+      const users = await User.find();
+
+      // Create a workbook and add a worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Users');
+
+      // Define the columns
+      worksheet.columns = [
+          { header: 'First Name', key: 'firstName', width: 20 },
+          { header: 'Last Name', key: 'lastName', width: 20 },
+          { header: 'Email', key: 'email', width: 40 },
+          { header: 'Username', key: 'username', width: 20 },
+          { header: 'Address', key: 'address', width: 40 },
+          { header: 'Role', key: 'role', width: 15 },
+          { header: 'Created At', key: 'createdAt', width: 20 },
+          { header: 'Updated At', key: 'updatedAt', width: 20 },
+      ];
+
+      // Add rows to the worksheet
+      users.forEach((user: UserDocument) => {
+          worksheet.addRow({
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              username: user.username,
+              address: `${user.address.street}. ${user.address.houseNumber}, ${user.address.apartmentNumber}, ${user.address.city}, ${user.address.postalCode}, ${user.address.country}`,
+              role: user.role,
+              createdAt: user.createdAt.toLocaleString(),
+              updatedAt: user.updatedAt.toLocaleString(),
+          });
+      });
+
+      // Set the content type and disposition of the response
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=users.xlsx');
+
+      // Write the workbook to the response
+      await workbook.xlsx.write(res);
+      res.end();
+  } catch (error) {
+      console.error('Error exporting users to Excel:', error);
+      res.status(500).json({ message: 'An error occurred while exporting users to Excel.' });
+  }
+};

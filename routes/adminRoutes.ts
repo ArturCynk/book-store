@@ -1,6 +1,6 @@
 import express from 'express';
 import { checkAdmin } from '../middlewares/authMiddleware'
-import { deleteUser, getUser, getUsers, updateUser } from '../controllers/adminRoutes';
+import { deleteUser, exportUsersToExcel, getUser, getUsers, searchUsers, sortUser, updateUser } from '../controllers/adminRoutes';
 
 const router = express.Router();
 
@@ -59,6 +59,64 @@ router.get('/users', checkAdmin, getUsers )
  *         description: Server error
  */
 router.get('/users/:id', checkAdmin, getUser)
+
+/**
+ * @swagger
+ * /users/search:
+ *   get:
+ *     summary: Search users
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Search query string (search by first name, last name, username, or email)
+ *     responses:
+ *       '200':
+ *         description: A list of users that match the search query
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       '500':
+ *         description: Server error
+ */
+router.get('/users/search', checkAdmin, searchUsers);
+
+/**
+ * @swagger
+ * /api/users/sort:
+ *   get:
+ *     summary: Sort users
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Field to sort by (firstName, lastName, email, createdAt, role)
+ *     responses:
+ *       '200':
+ *         description: A list of users sorted by the specified field
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       '500':
+ *         description: Server error
+ */
+router.get('/users/sort', checkAdmin, sortUser);
 
 /**
  * @swagger
@@ -175,5 +233,8 @@ router.put('/users/:id', checkAdmin, updateUser);
  *         description: Server error
  */
 router.delete('/users/:id', checkAdmin, deleteUser)
+
+
+router.get('/user/export', checkAdmin, exportUsersToExcel);
 
 export default router;
