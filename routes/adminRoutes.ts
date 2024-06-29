@@ -1,6 +1,6 @@
 import express from 'express';
 import { checkAdmin } from '../middlewares/authMiddleware'
-import { deleteUser, getUsers } from '../controllers/adminRoutes';
+import { deleteUser, getUsers, updateUser } from '../controllers/adminRoutes';
 
 const router = express.Router();
 
@@ -27,6 +27,78 @@ const router = express.Router();
  *         description: Server error
  */
 router.get('/users', checkAdmin, getUsers )
+
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update user profile by ID
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to update
+ *       - in: body
+ *         name: user
+ *         required: true
+ *         description: The user object to update
+ *         schema:
+ *           type: object
+ *           properties:
+ *             firstName:
+ *               type: string
+ *             lastName:
+ *               type: string
+ *             email:
+ *               type: string
+ *             username:
+ *               type: string
+ *             address:
+ *               type: object
+ *               properties:
+ *                 street:
+ *                   type: string
+ *                 city:
+ *                   type: string
+ *                 state:
+ *                   type: string
+ *                 country:
+ *                   type: string
+ *     responses:
+ *       '200':
+ *         description: User profile successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User profile successfully updated
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       '400':
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error message describing the error
+ *       '404':
+ *         description: User not found
+ *       '500':
+ *         description: Server error
+ */
+router.put('/users/:id', checkAdmin, updateUser);
 
 /**
  * @swagger
