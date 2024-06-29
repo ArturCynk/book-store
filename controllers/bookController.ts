@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Book, { BookDocument } from '../models/Book';
+import ExcelJS from 'exceljs';
 
 // Kontroler dla dodawania nowych książek
 export const addBook = async (req: Request, res: Response) => {
@@ -158,5 +159,38 @@ export const deleteBookById = async (req: Request, res: Response) => {
     } catch (err) {
         console.error('Error deleting book:', err);
         return res.status(500).json({ msg: 'Server Error' });
+    }
+};
+
+export const exportBooksToExcel = async (req: Request, res: Response) => {
+    try {
+        const books = await Book.find();
+        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Books');
+
+        worksheet.columns = [
+            { header: 'Title', key: 'title', width: 30 },
+            { header: 'Author', key: 'author', width: 30 },
+            { header: 'ISBN', key: 'isbn', width: 20 },
+            { header: 'Quantity', key: 'quantity', width: 10 },
+            { header: 'Description', key: 'description', width: 50 },
+            { header: 'Price', key: 'price', width: 10 },
+            { header: 'Publisher Date', key: 'publisherDate', width: 15 },
+            { header: 'Genre', key: 'genre', width: 20 }
+        ];
+
+        books.forEach(book => {
+            worksheet.addRow(book);
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=books.xlsx');
+
+
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        res.status(500).json({ message: 'Error exporting books to Excel', error});
     }
 };

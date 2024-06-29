@@ -36,6 +36,7 @@
     "body-parse": "^0.1.0",
     "connect-mongodb-session": "^5.0.0",
     "cors": "^2.8.5",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "express-validation": "^4.1.1",

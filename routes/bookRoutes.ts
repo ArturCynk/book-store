@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllBooks, addBook, getBookById, updateBookById, deleteBookById, searchBooksByName } from '../controllers/bookController';
+import { getAllBooks, addBook, getBookById, updateBookById, deleteBookById, searchBooksByName, exportBooksToExcel } from '../controllers/bookController';
 import { validateBook } from '../validations/bookValidators';
 import { checkAdmin } from '../middlewares/authMiddleware';
 import upload from '../middlewares/upload';
@@ -240,5 +240,22 @@ router.put('/books/:id', checkAdmin, updateBookById);
  *         description: Server error
  */
 router.delete('/books/:id', checkAdmin, deleteBookById);
+
+/**
+ * @swagger
+ * /books/export:
+ *   get:
+ *     summary: Export all books to Excel
+ *     tags: [Books]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: File downloaded successfully
+ *       500:
+ *         description: Server error
+ */
+router.get('/bookss/export', checkAdmin, exportBooksToExcel);
+
 
 export default router;
