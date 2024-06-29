@@ -3,10 +3,10 @@ import getActivationEmailTemplate from '../templates/activationEmail';
 import getPasswordResetEmailTemplate from '../templates/resetPasswordEmail'
 import getOrderConfirmationEmailTemplate from '../templates/orderConfirmationEmail'
 import getNewReviewNotificationTemplate from '../templates/newReviewNotification'
+import { generateInvoice } from '../utils/generateInvoice';
 import path from 'path';
-import { generateInvoice } from '../invoice/generateInvoice';
 import fs from 'fs';
-// Ustawienie klucza API SendGrid
+
 sgMail.setApiKey('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');
 
 // Funkcja do wysyłania emaila
@@ -100,7 +100,7 @@ export const sendOrderConfirmationEmail = async (email: string, orderDetails: an
       throw new Error('Failed to send order confirmation email');
   } finally {
       if (fs.existsSync(invoicePath)) {
-          fs.unlinkSync(invoicePath); // Usuwanie pliku po wysłaniu emaila
+          fs.unlinkSync(invoicePath); 
       }
   }
 };
