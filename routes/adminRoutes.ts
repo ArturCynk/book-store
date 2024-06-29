@@ -235,6 +235,29 @@ router.put('/users/:id', checkAdmin, updateUser);
 router.delete('/users/:id', checkAdmin, deleteUser)
 
 
+/**
+ * @swagger
+ * /user/export:
+ *   get:
+ *     summary: Export users to Excel
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Users exported successfully
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       '401':
+ *         description: Unauthorized
+ *       '500':
+ *         description: Server error
+ */
+
 router.get('/user/export', checkAdmin, exportUsersToExcel);
 
 export default router;
