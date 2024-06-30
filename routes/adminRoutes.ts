@@ -1,6 +1,7 @@
 import express from 'express';
 import { checkAdmin } from '../middlewares/authMiddleware'
-import { deleteUser, exportUsersToExcel, getUser, getUsers, searchUsers, sortUser, updateUser } from '../controllers/adminRoutes';
+import { deleteUser, exportUsersToExcel, getUser, getUsers, searchUsers, sortUser, updatePassword, updateUser } from '../controllers/adminController';
+import { changePasswordValidationRules, updateProfileValidationRules } from '../validations/userValidation';
 
 const router = express.Router();
 
@@ -187,7 +188,7 @@ router.get('/users/sort', checkAdmin, sortUser);
  *       '500':
  *         description: Server error
  */
-router.put('/users/:id', checkAdmin, updateUser);
+router.put('/users/:id', checkAdmin, updateProfileValidationRules, updateUser);
 
 /**
  * @swagger
@@ -259,5 +260,80 @@ router.delete('/users/:id', checkAdmin, deleteUser)
  */
 
 router.get('/user/export', checkAdmin, exportUsersToExcel);
+
+/**
+ * @swagger
+ * /users/update-password/{userId}:
+ *   put:
+ *     summary: Update user password
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user whose password is to be updated
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Current password of the user
+ *                 example: currentPassword123
+ *               newPassword:
+ *                 type: string
+ *                 description: New password for the user
+ *                 example: newPassword456
+ *     responses:
+ *       '200':
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password updated successfully.
+ *       '400':
+ *         description: Current password is incorrect or validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Current password is incorrect.
+ *       '404':
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found.
+ *       '500':
+ *         description: An error occurred while changing password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: An error occurred while changing password.
+ */
+router.put('/users/update-password/:userId',checkAdmin, changePasswordValidationRules, updatePassword )
 
 export default router;

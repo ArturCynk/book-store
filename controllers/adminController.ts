@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import User, { UserDocument } from '../models/User';
 import ExcelJS from 'exceljs';
+import bcrypt from 'bcryptjs';
+import User, { UserDocument } from '../models/User';
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
@@ -174,5 +175,40 @@ export const exportUsersToExcel = async (req: Request, res: Response) => {
   } catch (error) {
       console.error('Error exporting users to Excel:', error);
       res.status(500).json({ message: 'An error occurred while exporting users to Excel.' });
+  }
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    let user: UserDocument | null;
+    
+    user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Sprawdź czy podane obecne hasło jest poprawne
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect.' });
+    }
+
+    // Zahasłuj nowe hasło przed zapisaniem do bazy danych
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Zapisz zaktualizowane hasło użytkownika
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Error while changing password:', error);
+    return res.status(500).json({ message: 'An error occurred while changing password.' });
   }
 };
